@@ -1,0 +1,585 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ SITE_NAME }} - Find Exceptional Talent{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Using Nunito Sans from base template */
+
+    /* Bumble-inspired colors - inheriting from base template */
+    :root {
+        --primary-blue: var(--bumble-yellow);
+        --primary-dark: var(--bumble-yellow-dark);
+        --primary-light: var(--bumble-yellow-light);
+        --accent-color: var(--bumble-black);
+        --light-blue: var(--bumble-light-gray);
+        --text-dark: var(--bumble-black);
+        --text-gray: var(--bumble-gray);
+        --background-light: var(--bumble-light-gray);
+        --gradient-primary: none;
+        --gradient-accent: none;
+        --shadow-sm: var(--shadow-sm);
+        --shadow-md: var(--shadow-md);
+        --shadow-lg: 0 8px 24px rgba(0,0,0,0.15);
+        --border-radius: var(--border-radius);
+        --transition-speed: var(--transition-speed);
+    }
+
+    /* Body font is inherited from base template */
+
+    /* Hero Section Styles */
+    .hero-section {
+        text-align: center;
+        padding: 6rem 0 4rem;
+        background: var(--bumble-yellow);
+        position: relative;
+        overflow: hidden;
+        color: var(--bumble-black);
+    }
+
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        right: -5%;
+        width: 300px;
+        height: 300px;
+        background: var(--bumble-white);
+        opacity: 0.1;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        left: -5%;
+        width: 200px;
+        height: 200px;
+        background: var(--bumble-white);
+        opacity: 0.1;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-badge {
+        display: inline-block;
+        background: var(--bumble-black);
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        margin-bottom: 1.8rem;
+        color: var(--bumble-white);
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        animation: fadeInDown 1s ease-out;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .hero-title {
+        font-size: 3.8rem;
+        margin-bottom: 1.8rem;
+        line-height: 1.1;
+        color: var(--bumble-black);
+        font-weight: 800;
+        animation: fadeInUp 1s ease-out;
+        letter-spacing: -0.03em;
+    }
+
+    .hero-title span {
+        color: var(--bumble-black);
+        position: relative;
+        display: inline-block;
+    }
+
+    .hero-title span::after {
+        content: '';
+        position: absolute;
+        bottom: -5px;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: var(--bumble-white);
+        border-radius: 4px;
+        opacity: 0.5;
+    }
+
+    .hero-subtitle {
+        color: var(--bumble-black);
+        font-size: 1.3rem;
+        margin-bottom: 2.5rem;
+        max-width: 650px;
+        margin-left: auto;
+        margin-right: auto;
+        animation: fadeInUp 1.2s ease-out;
+        opacity: 0.8;
+    }
+
+    .hero-buttons {
+        margin-bottom: 4rem;
+        animation: fadeInUp 1.4s ease-out;
+    }
+
+    /* Button Styles */
+    .btn-primary {
+        background: var(--bumble-black);
+        border: none;
+        padding: 1rem 2.5rem;
+        font-weight: 600;
+        border-radius: 30px;
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-speed);
+        color: var(--bumble-white);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-md);
+        background: #333333;
+    }
+
+    .btn-outline {
+        border: 2px solid var(--bumble-black);
+        color: var(--bumble-black);
+        background: transparent;
+        padding: 1rem 2.5rem;
+        margin-left: 1rem;
+        font-weight: 600;
+        border-radius: 30px;
+        transition: all var(--transition-speed);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .btn-outline:hover {
+        background: rgba(0, 0, 0, 0.1);
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Featured Section Styles */
+    .featured-section {
+        padding: 6rem 0;
+        background-color: var(--bumble-white);
+        position: relative;
+    }
+
+    .featured-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100px;
+        background: var(--bumble-yellow);
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 0 0);
+    }
+
+    .featured-header {
+        text-align: center;
+        margin-bottom: 4rem;
+    }
+
+    .featured-title {
+        font-size: 2.8rem;
+        margin-bottom: 1.2rem;
+        color: var(--bumble-black);
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+    }
+
+    .featured-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80px;
+        height: 4px;
+        background: var(--bumble-yellow);
+        border-radius: 2px;
+    }
+
+    .featured-subtitle {
+        color: var(--bumble-gray);
+        font-size: 1.1rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    /* Profile Card Styles */
+    .profile-card {
+        padding: 2.5rem;
+        margin-bottom: 2.5rem;
+        background: var(--bumble-white);
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        transition: all var(--transition-speed);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .profile-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: var(--bumble-yellow);
+        opacity: 0;
+        transition: all var(--transition-speed);
+    }
+
+    .profile-card:hover {
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .profile-card:hover::before {
+        opacity: 1;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.8rem;
+    }
+
+    .profile-avatar {
+        width: 60px;
+        height: 60px;
+        background: var(--bumble-yellow);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 1.2rem;
+        font-weight: bold;
+        color: var(--bumble-black);
+        font-size: 1.2rem;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .profile-info h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    .profile-info p {
+        margin: 0;
+        color: var(--text-gray);
+        font-size: 0.95rem;
+    }
+
+    .skill-tags {
+        margin: 1.2rem 0;
+    }
+
+    .skill-tag {
+        display: inline-block;
+        padding: 0.35rem 0.9rem;
+        background: rgba(245, 196, 0, 0.1);
+        border-radius: 20px;
+        margin-right: 0.6rem;
+        margin-bottom: 0.6rem;
+        font-size: 0.9rem;
+        color: var(--bumble-black);
+        font-weight: 600;
+        transition: all var(--transition-speed);
+    }
+
+    .skill-tag:hover {
+        background: rgba(245, 196, 0, 0.2);
+        transform: translateY(-2px);
+    }
+
+    .profile-description {
+        color: var(--text-gray);
+        margin-bottom: 1.8rem;
+        line-height: 1.7;
+        font-size: 1rem;
+    }
+
+    .experience-section {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .experience-section h4 {
+        font-size: 0.85rem;
+        color: var(--bumble-black);
+        margin-bottom: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .experience-item {
+        font-size: 0.95rem;
+        color: var(--bumble-dark-gray);
+        line-height: 1.6;
+    }
+
+    .profile-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+    }
+
+    .btn-link {
+        color: var(--primary-blue);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all var(--transition-speed);
+    }
+
+    .btn-link:hover {
+        color: var(--primary-dark);
+        transform: translateX(3px);
+    }
+
+    .featured-badge {
+        display: inline-block;
+        padding: 0.4rem 1rem;
+        background: var(--bumble-yellow);
+        color: var(--bumble-black);
+        border-radius: 20px;
+        font-size: 0.85rem;
+        margin-bottom: 1.2rem;
+        font-weight: 600;
+        box-shadow: var(--shadow-sm);
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .view-all-section {
+        text-align: center;
+        margin: 3rem 0 1rem;
+    }
+
+    /* CTA Section Styles */
+    .cta-section {
+        text-align: center;
+        padding: 6rem 0;
+        background: var(--bumble-yellow);
+        position: relative;
+        overflow: hidden;
+        color: var(--bumble-black);
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        top: -10%;
+        left: -5%;
+        width: 300px;
+        height: 300px;
+        background: var(--bumble-white);
+        opacity: 0.1;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .cta-section::after {
+        content: '';
+        position: absolute;
+        bottom: -10%;
+        right: -5%;
+        width: 200px;
+        height: 200px;
+        background: var(--bumble-white);
+        opacity: 0.1;
+        border-radius: 50%;
+        z-index: 0;
+    }
+
+    .cta-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-title {
+        font-size: 2.8rem;
+        margin-bottom: 2.5rem;
+        color: var(--bumble-black);
+        font-weight: 800;
+    }
+
+    .btn-lg {
+        padding: 1.2rem 3rem;
+        font-size: 1rem;
+        background: var(--bumble-black);
+        color: var(--bumble-white);
+    }
+
+    /* Animations */
+    @keyframes fadeInDown {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .hero-title {
+            font-size: 2.8rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .btn-outline {
+            margin-left: 0;
+            margin-top: 1rem;
+        }
+
+        .hero-buttons {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .featured-title {
+            font-size: 2.2rem;
+        }
+
+        .cta-title {
+            font-size: 2.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="hero-badge">{{ SITE_COLLEGE_SHORT }} Campus Recruitment Platform</div>
+        <h1 class="hero-title">Discover <span>Exceptional Talent</span><br>From {{ SITE_COLLEGE_SHORT }}</h1>
+        <p class="hero-subtitle">Connect with skilled students and fresh graduates ready to bring innovation and energy to your organization.</p>
+        <div class="hero-buttons">
+            <a href="{% url 'discover' %}" class="btn btn-primary">Discover Talent</a>
+            <a href="{% url 'register' %}" class="btn btn-outline">Create Your Profile</a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Talent Section -->
+<section class="featured-section">
+    <div class="container">
+        <div class="featured-header">
+            <h2 class="featured-title">Featured Talent</h2>
+            <p class="featured-subtitle">Discover some of our standout profiles ready to bring value to your organization</p>
+        </div>
+
+        <div class="row">
+            {% if featured_students %}
+                {% for student in featured_students %}
+                    <div class="col-md-4">
+                        <div class="card profile-card">
+                            {% if forloop.first %}
+                                <div class="featured-badge">Featured Profile</div>
+                            {% endif %}
+                            <div class="profile-header">
+                                <div class="profile-avatar">
+                                    {% if student.profile_picture %}
+                                        <img src="{{ student.profile_picture.url }}" alt="{{ student.user.get_full_name }}" class="img-fluid rounded-circle" style="width: 60px; height: 60px; object-fit: cover;">
+                                    {% else %}
+                                        {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                    {% endif %}
+                                </div>
+                                <div class="profile-info">
+                                    <h3>{{ student.user.get_full_name }}</h3>
+                                    <p>{{ student.user.email }}</p>
+                                </div>
+                            </div>
+                            <div class="skill-tags">
+                                {% with skills=student.get_skills_list %}
+                                    {% for skill in skills|slice:":4" %}
+                                        <span class="skill-tag">{{ skill }}</span>
+                                    {% endfor %}
+                                    {% if skills|length > 4 %}
+                                        <span class="skill-tag">+{{ skills|length|add:"-4" }} more</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                            <p class="profile-description">{{ student.experience|truncatewords:20 }}</p>
+                            {% if student.projects %}
+                                <div class="experience-section">
+                                    <h4>PROJECTS & EXPERIENCE</h4>
+                                    <div class="experience-item">
+                                        {{ student.projects|truncatewords:10 }}
+                                    </div>
+                                </div>
+                            {% endif %}
+                            <div class="profile-actions">
+                                <a href="#" class="btn btn-primary">View Profile</a>
+                                <a href="mailto:{{ student.user.email }}" class="btn btn-link">Contact <i class="fas fa-arrow-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="col-12 text-center">
+                    <p>No student profiles available yet. Be the first to create your profile!</p>
+                    <a href="{% url 'register' %}" class="btn btn-primary mt-3">Create Your Profile</a>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="view-all-section">
+            <a href="{% url 'discover' %}" class="btn btn-outline">View All Profiles <i class="fas fa-arrow-right ml-2"></i></a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container cta-content">
+        <h2 class="cta-title">Ready to Showcase Your Talent?</h2>
+        <p class="hero-subtitle mb-4">Join our community of talented students and connect with top employers looking for your skills.</p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Create Your Profile <i class="fas fa-user-plus ml-2"></i></a>
+    </div>
+</section>
+
+<!-- Add Font Awesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+{% endblock %}

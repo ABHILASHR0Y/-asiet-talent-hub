@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{{ SITE_DESCRIPTION }}">
+    <meta name="author" content="{{ SITE_COLLEGE }}">
+    <title>{% block title %}{{ SITE_NAME }}{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Bumble-inspired color palette */
+            --bumble-yellow: #F5C400;
+            --bumble-yellow-light: #FFDF80;
+            --bumble-yellow-dark: #E6B800;
+            --bumble-black: #000000;
+            --bumble-dark-gray: #333333;
+            --bumble-gray: #757575;
+            --bumble-light-gray: #EFEFEF;
+            --bumble-white: #FFFFFF;
+
+            /* UI colors */
+            --primary-color: var(--bumble-yellow);
+            --secondary-color: var(--bumble-black);
+            --accent-color: var(--bumble-yellow-dark);
+            --background-color: var(--bumble-white);
+            --card-background: var(--bumble-white);
+            --text-color: var(--bumble-black);
+            --text-light: var(--bumble-gray);
+            --border-color: var(--bumble-light-gray);
+
+            /* Shadows and effects */
+            --shadow-sm: 0 2px 8px rgba(0,0,0,0.05);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --border-radius: 30px;
+            --transition-speed: 0.3s;
+        }
+
+        body {
+            font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            color: var(--text-color);
+            background-color: var(--background-color);
+            line-height: 1.6;
+            font-weight: 400;
+            letter-spacing: -0.01em;
+        }
+
+        .navbar {
+            background: var(--bumble-yellow);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .navbar-brand {
+            color: var(--bumble-black) !important;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            font-size: 1.5rem;
+        }
+
+        .nav-link {
+            color: var(--bumble-black) !important;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            margin: 0 0.25rem;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--bumble-black) !important;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+        }
+
+        .card {
+            border: none;
+            border-radius: var(--border-radius);
+            background-color: var(--card-background);
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-speed);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-primary {
+            background-color: var(--bumble-yellow);
+            border: none;
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-weight: 700;
+            transition: all var(--transition-speed);
+            box-shadow: var(--shadow-sm);
+            color: var(--bumble-black);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 0.9rem;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+            background-color: var(--bumble-yellow-dark);
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--bumble-yellow);
+            color: var(--bumble-black);
+            border-radius: 30px;
+            padding: 0.8rem 2rem;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+            background-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--bumble-yellow-light);
+            transform: translateY(-2px);
+            border-color: var(--bumble-yellow-dark);
+        }
+
+        .logout-form {
+            display: inline;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            color: var(--bumble-black) !important;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all var(--transition-speed);
+            border-radius: 20px;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(0, 0, 0, 0.1);
+            color: var(--bumble-black) !important;
+        }
+
+        /* Alert styling */
+        .alert {
+            border-radius: 15px;
+            border: none;
+            box-shadow: var(--shadow-sm);
+            padding: 1rem 1.5rem;
+        }
+
+        .alert-success {
+            background-color: #E8F5E9;
+            color: #2E7D32;
+            border-left: 4px solid #4CAF50;
+        }
+
+        .alert-danger {
+            background-color: #FFEBEE;
+            color: #C62828;
+            border-left: 4px solid #F44336;
+        }
+
+        .alert-info {
+            background-color: rgba(245, 196, 0, 0.1);
+            color: var(--bumble-black);
+            border-left: 4px solid var(--bumble-yellow);
+        }
+
+        /* Form controls */
+        .form-control {
+            border-radius: 15px;
+            border: 2px solid var(--border-color);
+            padding: 0.8rem 1.2rem;
+            transition: all var(--transition-speed);
+            font-size: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--bumble-yellow);
+            box-shadow: 0 0 0 0.2rem rgba(245, 196, 0, 0.25);
+        }
+
+        /* Custom toggle for dark mode */
+        .navbar-toggler {
+            border: none;
+            color: var(--bumble-black);
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-toggler-icon {
+            filter: none;
+        }
+
+        .site-footer {
+            background-color: var(--bumble-light-gray);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="{% url 'home' %}">{{ SITE_NAME }}</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'home' %}">Home</a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <form method="post" action="{% url 'logout' %}" class="logout-form">
+                                {% csrf_token %}
+                                <button type="submit" class="nav-link logout-btn">Logout</button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer class="site-footer mt-5 py-4">
+        <div class="container-fluid text-center">
+            <p class="mb-1 fw-bold">{{ SITE_NAME }}</p>
+            <p class="mb-1 text-muted small">{{ SITE_COLLEGE }}</p>
+            <p class="mb-0 text-muted small">{{ SITE_TAGLINE }}</p>
+            <p class="mb-0 text-muted small mt-2">
+                <a href="mailto:{{ SITE_EMAIL }}" class="text-muted">{{ SITE_EMAIL }}</a>
+            </p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
