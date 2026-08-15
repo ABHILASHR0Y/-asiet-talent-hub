@@ -214,12 +214,15 @@
             border-top: 1px solid var(--border-color);
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'home' %}">{{ SITE_NAME }}</a>
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+                <i class="fa-solid me-2 text-dark"></i> {{ SITE_NAME }}
+            </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
@@ -228,28 +231,105 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'job_list' %}">Jobs & Internships</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'discover' %}">Search Talent</a>
+                    </li>
+
                     {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                        {% if user_role == 'admin' %}
+                            <li class="nav-item">
+                                <a class="nav-link text-danger fw-bold" href="{% url 'admin:index' %}">
+                                    <i class="fa-solid fa-shield-halved me-1"></i> Django Admin (Control Center)
+                                    {% if pending_verifications_count > 0 %}
+                                        <span class="badge bg-danger rounded-pill">{{ pending_verifications_count }} Pending</span>
+                                    {% endif %}
+                                </a>
+                            </li>
+                        {% elif user_role == 'approved_recruiter' %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold" href="{% url 'recruiter_dashboard' %}">
+                                    <i class="fa-solid fa-chart-line me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link btn btn-dark text-warning btn-sm px-3 ms-1" href="{% url 'job_create' %}">
+                                    <i class="fa-solid fa-plus me-1"></i> Post Opportunity
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'recruiter_company_profile' %}">Company Profile</a>
+                            </li>
+                        {% elif user_role == 'pending_recruiter' %}
+                            <li class="nav-item">
+                                <a class="nav-link text-warning fw-bold" href="{% url 'recruiter_pending' %}">
+                                    <i class="fa-solid fa-clock me-1"></i> Verification Pending
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'recruiter_company_profile' %}">Company Profile</a>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a class="nav-link fw-bold" href="{% url 'student_dashboard' %}">My Dashboard</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'student_applications' %}">My Applications</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{% url 'profile' %}">Profile</a>
+                            </li>
+                        {% endif %}
+                    {% endif %}
+                </ul>
+
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item me-2">
+                            <a class="nav-link position-relative" href="{% url 'notifications_list' %}" title="Notifications">
+                                <i class="fa-solid fa-bell fs-5"></i>
+                                {% if unread_notifications_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                                        {{ unread_notifications_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                        </li>
+                        <li class="nav-item me-3">
+                            <span class="navbar-text fw-semibold small text-dark">
+                                {% if user_role == 'approved_recruiter' or user_role == 'pending_recruiter' %}
+                                    <i class="fa-solid fa-building me-1"></i> {{ company_profile.company_name }}
+                                {% else %}
+                                    <i class="fa-solid fa-user me-1"></i> {{ user.get_full_name|default:user.username }}
+                                {% endif %}
+                            </span>
                         </li>
                         <li class="nav-item">
                             <form method="post" action="{% url 'logout' %}" class="logout-form">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link logout-btn">Logout</button>
+                                <button type="submit" class="logout-btn"><i class="fa-solid fa-right-from-bracket me-1"></i> Logout</button>
                             </form>
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                            <a class="nav-link" href="{% url 'login' %}">Student Login</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                            <a class="nav-link" href="{% url 'register' %}">Student Register</a>
+                        </li>
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-dark text-warning rounded-pill px-3 py-1 font-weight-bold" href="{% url 'recruiter_register' %}">
+                                <i class="fa-solid fa-building me-1"></i> Recruiter Registration
+                            </a>
                         </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
+
 
     <div class="container">
         {% if messages %}

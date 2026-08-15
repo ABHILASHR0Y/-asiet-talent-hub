@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block title %}Company Profile - {{ company.company_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body p-4 p-md-5">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Company Profile</h4>
+                    <span class="badge {% if company.verification_status == 'approved' %}bg-success{% elif company.verification_status == 'pending' %}bg-warning text-dark{% else %}bg-danger{% endif %} rounded-pill px-3 py-2 fs-6">
+                        Status: {{ company.get_verification_status_display }}
+                    </span>
+                </div>
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-auto">
+                            {% if company.logo %}
+                                <img src="{{ company.logo.url }}" alt="{{ company.company_name }}" class="rounded-circle border" style="width: 100px; height: 100px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ company.company_name|urlencode }}&background=F5C400&color=000';">
+                            {% else %}
+                                <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-2" style="width: 100px; height: 100px;">
+                                    {{ company.company_name|first }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h5 class="fw-bold mb-1">{{ company.company_name }}</h5>
+                            <p class="text-muted small mb-0">{{ company.industry }} | {{ company.location }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Company Name</label>
+                            {{ form.company_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Industry</label>
+                            {{ form.industry }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">HR / Contact Person Name</label>
+                            {{ form.hr_name }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Official Email</label>
+                            {{ form.official_email }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Phone Number</label>
+                            {{ form.phone_number }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Location</label>
+                            {{ form.location }}
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Website</label>
+                            {{ form.website }}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">LinkedIn Profile URL</label>
+                            {{ form.linkedin_url }}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Company Logo</label>
+                        {{ form.logo }}
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-semibold">About Company</label>
+                        {{ form.description }}
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

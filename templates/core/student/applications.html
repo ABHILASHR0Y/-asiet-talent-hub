@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}My Applications - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-file-signature text-warning me-2"></i> My Applications</h3>
+        <p class="text-muted small">Track your job applications and status updates from campus recruiters.</p>
+    </div>
+</div>
+
+{% if application_list %}
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Company</th>
+                        <th>Job Title</th>
+                        <th>Type</th>
+                        <th>Applied Date</th>
+                        <th>Match Score</th>
+                        <th>Status</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in application_list %}
+                        {% with app=item.application %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">{{ app.job.company.company_name }}</div>
+                                    <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> {{ app.job.location }}</div>
+                                </td>
+                                <td>
+                                    <a href="{% url 'job_detail' job_id=app.job.id %}" class="fw-bold text-dark text-decoration-none">
+                                        {{ app.job.title }}
+                                    </a>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ app.job.get_opportunity_type_display }}</span></td>
+                                <td class="small text-muted">{{ app.applied_at|date:"M d, Y" }}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark font-monospace px-2 py-1 rounded-pill">
+                                        {{ item.match_score }}% Match
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge {% if app.status == 'shortlisted' %}bg-success{% elif app.status == 'selected' %}bg-primary{% elif app.status == 'rejected' %}bg-danger{% elif app.status == 'withdrawn' %}bg-secondary{% else %}bg-info text-dark{% endif %} rounded-pill">
+                                        {{ app.get_status_display }}
+                                    </span>
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'job_detail' job_id=app.job.id %}" class="btn btn-outline-dark rounded-pill me-1">
+                                            View Job
+                                        </a>
+                                        {% if app.status != 'withdrawn' and app.status != 'selected' and app.status != 'rejected' %}
+                                            <a href="{% url 'withdraw_application' application_id=app.id %}" class="btn btn-sm btn-outline-danger rounded-pill">
+                                                Withdraw
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endwith %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% else %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm p-4">
+        <i class="fa-solid fa-paper-plane fs-1 text-muted mb-3 d-block"></i>
+        <h5>You haven't applied to any opportunities yet.</h5>
+        <p class="text-muted small mb-3">Browse open positions and apply directly through ASIET Talent Hub.</p>
+        <a href="{% url 'job_list' %}" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">Explore Jobs</a>
+    </div>
+{% endif %}
+{% endblock %}

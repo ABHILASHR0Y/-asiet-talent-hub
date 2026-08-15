@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}Applicants for {{ job.title }} - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">Applicants for: <span class="text-warning">{{ job.title }}</span></h4>
+        <p class="text-muted small mb-0">
+            <i class="fa-solid fa-building me-1"></i> {{ job.company.company_name }} |
+            <i class="fa-solid fa-users me-1"></i> Total Applications: {{ total_applicants }} |
+            <i class="fa-solid fa-clock me-1"></i> Deadline: {{ job.deadline|date:"M d, Y" }}
+        </p>
+    </div>
+    <a href="{% url 'recruiter_dashboard' %}" class="btn btn-outline-dark rounded-pill px-3">
+        <i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard
+    </a>
+</div>
+
+<!-- Status Filter Pills -->
+<div class="mb-4">
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{% url 'job_applicants' job_id=job.id %}" class="btn btn-sm {% if not current_status_filter %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill px-3">
+            All ({{ total_applicants }})
+        </a>
+        <a href="{% url 'job_applicants' job_id=job.id %}?status=shortlisted" class="btn btn-sm {% if current_status_filter == 'shortlisted' %}btn-success{% else %}btn-outline-success{% endif %} rounded-pill px-3">
+            Shortlisted
+        </a>
+        <a href="{% url 'job_applicants' job_id=job.id %}?status=under_review" class="btn btn-sm {% if current_status_filter == 'under_review' %}btn-primary{% else %}btn-outline-primary{% endif %} rounded-pill px-3">
+            Under Review
+        </a>
+        <a href="{% url 'job_applicants' job_id=job.id %}?status=interview_scheduled" class="btn btn-sm {% if current_status_filter == 'interview_scheduled' %}btn-warning text-dark{% else %}btn-outline-warning text-dark{% endif %} rounded-pill px-3">
+            Interview Scheduled
+        </a>
+        <a href="{% url 'job_applicants' job_id=job.id %}?status=selected" class="btn btn-sm {% if current_status_filter == 'selected' %}btn-info text-white{% else %}btn-outline-info{% endif %} rounded-pill px-3">
+            Selected
+        </a>
+        <a href="{% url 'job_applicants' job_id=job.id %}?status=rejected" class="btn btn-sm {% if current_status_filter == 'rejected' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill px-3">
+            Rejected
+        </a>
+    </div>
+</div>
+
+{% if applicant_list %}
+    <div class="row g-4">
+        {% for item in applicant_list %}
+            {% with app=item.application student=item.student match=item.match_info %}
+                <div class="col-md-6 col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 p-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if student.profile_picture %}
+                                        <img src="{{ student.profile_picture.url }}" alt="{{ student }}" class="rounded-circle border" style="width: 54px; height: 54px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ student.user.get_full_name|urlencode }}&background=F5C400&color=000';">
+                                    {% else %}
+                                        <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 54px; height: 54px;">
+                                            {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h5 class="fw-bold mb-0 text-dark">{{ student.user.get_full_name }}</h5>
+                                        <p class="text-muted small mb-0">{{ student.course|default:"B.Tech" }} - {{ student.department|default:"Engineering" }}</p>
+                                        <div class="small text-muted">
+                                            {% if student.cgpa %}<strong>CGPA:</strong> {{ student.cgpa }}/10 | {% endif %}
+                                            {% if student.graduation_year %}<strong>Batch:</strong> {{ student.graduation_year }}{% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="badge bg-warning text-dark font-monospace fs-6 px-3 py-2 rounded-pill shadow-sm">
+                                    <i class="fa-solid fa-bullseye me-1"></i> {{ item.match_score }}% Match
+                                </span>
+                            </div>
+
+                            <!-- Skills -->
+                            <div class="mb-3">
+                                <small class="fw-semibold text-muted d-block mb-1">STUDENT SKILLS:</small>
+                                {% with skills=student.get_skills_list %}
+                                    {% for skill in skills|slice:":5" %}
+                                        <span class="badge bg-light text-dark border rounded-pill me-1 mb-1">{{ skill }}</span>
+                                    {% endfor %}
+                                    {% if skills|length > 5 %}
+                                        <span class="badge bg-light text-muted border rounded-pill">+{{ skills|length|add:"-5" }} more</span>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+
+                            <!-- Match Breakdown Accordion -->
+                            <div class="accordion accordion-flush mb-3" id="matchAccordion{{ app.id }}">
+                                <div class="accordion-item border rounded-3 overflow-hidden">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed py-2 small bg-light text-dark fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ app.id }}">
+                                            <i class="fa-solid fa-circle-info me-2 text-warning"></i> AI Match Score Breakdown
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ app.id }}" class="accordion-collapse collapse" data-bs-parent="#matchAccordion{{ app.id }}">
+                                        <div class="accordion-body small py-2 px-3 bg-white">
+                                            <ul class="list-unstyled mb-0">
+                                                {% for exp in match.explanations %}
+                                                    <li class="mb-1 {% if '✓' in exp %}text-success{% elif '✕' in exp %}text-danger{% else %}text-muted{% endif %}">
+                                                        {{ exp }}
+                                                    </li>
+                                                {% endfor %}
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if app.cover_note %}
+                                <div class="bg-light p-2 rounded-3 small mb-3 text-muted">
+                                    <strong>Cover Note:</strong> "{{ app.cover_note|truncatewords:20 }}"
+                                </div>
+                            {% endif %}
+
+                            <div class="d-flex justify-content-between align-items-center pt-2 border-top">
+                                <div>
+                                    {% if app.resume %}
+                                        <a href="{{ app.resume.url }}" target="_blank" class="btn btn-sm btn-outline-dark rounded-pill">
+                                            <i class="fa-solid fa-file-pdf me-1 text-danger"></i> View Resume
+                                        </a>
+                                    {% else %}
+                                        <span class="small text-muted">No resume uploaded</span>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Status Update Dropdown -->
+                                <form method="post" action="{% url 'update_application_status' application_id=app.id %}" class="d-flex gap-2">
+                                    {% csrf_token %}
+                                    <select name="status" class="form-select form-select-sm rounded-pill" onchange="this.form.submit()">
+                                        <option value="applied" {% if app.status == 'applied' %}selected{% endif %}>Applied</option>
+                                        <option value="under_review" {% if app.status == 'under_review' %}selected{% endif %}>Under Review</option>
+                                        <option value="shortlisted" {% if app.status == 'shortlisted' %}selected{% endif %}>Shortlisted</option>
+                                        <option value="interview_scheduled" {% if app.status == 'interview_scheduled' %}selected{% endif %}>Interview Scheduled</option>
+                                        <option value="selected" {% if app.status == 'selected' %}selected{% endif %}>Selected</option>
+                                        <option value="rejected" {% if app.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                                    </select>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+        <i class="fa-solid fa-user-slash fs-1 text-muted mb-3 d-block"></i>
+        <h5>No applicants match your current criteria.</h5>
+        <p class="text-muted small">Applications submitted for this role will appear here automatically.</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,212 @@
+{% extends 'base.html' %}
+
+{% block title %}Recruiter Dashboard - {{ company.company_name }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-7">
+        <div class="d-flex align-items-center gap-3">
+            {% if company.logo %}
+                <img src="{{ company.logo.url }}" alt="{{ company.company_name }}" class="rounded-circle border" style="width: 60px; height: 60px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ company.company_name|urlencode }}&background=F5C400&color=000';">
+            {% else %}
+                <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-4" style="width: 60px; height: 60px;">
+                    {{ company.company_name|first }}
+                </div>
+            {% endif %}
+            <div>
+                <h3 class="fw-bold mb-1 d-flex align-items-center gap-2">
+                    {{ company.company_name }}
+                    <span class="badge bg-success small fs-6 rounded-pill" title="Verified by ASIET Placement Cell"><i class="fa-solid fa-circle-check me-1"></i> Verified</span>
+                </h3>
+                <p class="text-muted mb-0 small"><i class="fa-solid fa-user me-1"></i> HR: {{ company.hr_name }} | <i class="fa-solid fa-location-dot me-1"></i> {{ company.location }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'job_create' %}" class="btn btn-warning btn-lg rounded-pill fw-bold text-dark px-4 shadow-sm">
+            <i class="fa-solid fa-plus me-1"></i> Post Opportunity
+        </a>
+    </div>
+</div>
+
+<!-- Metrics Cards -->
+<div class="row g-3 mb-5">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="text-warning fs-3 mb-1"><i class="fa-solid fa-briefcase"></i></div>
+            <h3 class="fw-bold mb-0">{{ metrics.active_jobs }}</h3>
+            <span class="text-muted small">Active Jobs</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="text-primary fs-3 mb-1"><i class="fa-solid fa-users"></i></div>
+            <h3 class="fw-bold mb-0">{{ metrics.total_applications }}</h3>
+            <span class="text-muted small">Total Applications</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="text-success fs-3 mb-1"><i class="fa-solid fa-user-check"></i></div>
+            <h3 class="fw-bold mb-0">{{ metrics.shortlisted_candidates }}</h3>
+            <span class="text-muted small">Shortlisted</span>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm rounded-4 text-center p-3">
+            <div class="text-secondary fs-3 mb-1"><i class="fa-solid fa-clock-rotate-left"></i></div>
+            <h3 class="fw-bold mb-0">{{ metrics.closed_jobs }}</h3>
+            <span class="text-muted small">Closed Jobs</span>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Applications -->
+<div class="card border-0 shadow-sm rounded-4 mb-5">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-file-lines text-warning me-2"></i> Recent Applications</h5>
+        <span class="badge bg-light text-dark">{{ recent_applications|length }} candidates</span>
+    </div>
+    <div class="card-body p-0">
+        {% if recent_applications %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Student</th>
+                            <th>Job Title</th>
+                            <th>Department</th>
+                            <th>Applied Date</th>
+                            <th>Match Score</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in recent_applications %}
+                            {% with app=item.application student=item.application.student %}
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center gap-2">
+                                            {% if student.profile_picture %}
+                                                <img src="{{ student.profile_picture.url }}" alt="{{ student }}" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ student.user.get_full_name|urlencode }}&background=EFEFEF&color=333';">
+                                            {% else %}
+                                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold" style="width: 38px; height: 38px; font-size: 14px;">
+                                                    {{ student.user.first_name|first }}{{ student.user.last_name|first }}
+                                                </div>
+                                            {% endif %}
+                                            <div>
+                                                <div class="fw-semibold text-dark">{{ student.user.get_full_name }}</div>
+                                                <div class="small text-muted">{{ student.course|default:"Student" }}</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td><span class="fw-semibold">{{ app.job.title }}</span></td>
+                                    <td>{{ student.department|default:"N/A" }}</td>
+                                    <td class="small text-muted">{{ app.applied_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark font-monospace fs-6 px-2 py-1">
+                                            <i class="fa-solid fa-bullseye me-1"></i> {{ item.match_score }}% Match
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge {% if app.status == 'shortlisted' %}bg-success{% elif app.status == 'selected' %}bg-primary{% elif app.status == 'rejected' %}bg-danger{% else %}bg-secondary{% endif %} rounded-pill">
+                                            {{ app.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <a href="{% url 'job_applicants' job_id=app.job.id %}" class="btn btn-sm btn-outline-dark rounded-pill">
+                                            Review Candidate
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fa-regular fa-folder-open fs-1 text-muted mb-3 d-block"></i>
+                <p class="text-muted mb-2">No applications received yet.</p>
+                <small class="text-muted">Applications submitted by students will appear here in real-time.</small>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Posted Opportunities Table -->
+<div class="card border-0 shadow-sm rounded-4">
+    <div class="card-header bg-white border-0 py-3 px-4 d-flex justify-content-between align-items-center">
+        <h5 class="fw-bold mb-0"><i class="fa-solid fa-list-check text-warning me-2"></i> Your Job Openings</h5>
+        <a href="{% url 'job_create' %}" class="btn btn-sm btn-warning rounded-pill fw-bold text-dark">+ Post Opportunity</a>
+    </div>
+    <div class="card-body p-0">
+        {% if jobs %}
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">Job Title</th>
+                            <th>Type</th>
+                            <th>Work Mode</th>
+                            <th>Applications</th>
+                            <th>Deadline</th>
+                            <th>Status</th>
+                            <th class="text-end pe-4">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for job in jobs %}
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="fw-bold text-dark">{{ job.title }}</div>
+                                    <div class="small text-muted"><i class="fa-solid fa-location-dot me-1"></i> {{ job.location }}</div>
+                                </td>
+                                <td><span class="badge bg-light text-dark border">{{ job.get_opportunity_type_display }}</span></td>
+                                <td>{{ job.get_work_mode_display }}</td>
+                                <td>
+                                    <a href="{% url 'job_applicants' job_id=job.id %}" class="fw-bold text-dark text-decoration-none">
+                                        <i class="fa-solid fa-users me-1"></i> {{ job.applications.count }} applicants
+                                    </a>
+                                </td>
+                                <td class="small {% if job.is_expired %}text-danger fw-bold{% else %}text-muted{% endif %}">
+                                    {{ job.deadline|date:"M d, Y" }}
+                                    {% if job.is_expired %}<br><span class="badge bg-danger rounded-pill">Expired</span>{% endif %}
+                                </td>
+                                <td>
+                                    {% if job.status == 'active' and not job.is_expired %}
+                                        <span class="badge bg-success rounded-pill">Active</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary rounded-pill">{{ job.get_effective_status|title }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end pe-4">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{% url 'job_applicants' job_id=job.id %}" class="btn btn-warning fw-bold text-dark" title="View Applicants">
+                                            <i class="fa-solid fa-users"></i> Applicants
+                                        </a>
+                                        <a href="{% url 'job_edit' job_id=job.id %}" class="btn btn-outline-dark" title="Edit Job">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a href="{% url 'job_toggle_status' job_id=job.id %}" class="btn btn-outline-secondary" title="Toggle Status">
+                                            <i class="fa-solid fa-power-off"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-briefcase fs-1 text-muted mb-3 d-block"></i>
+                <h5>You haven't posted any opportunities yet.</h5>
+                <p class="text-muted small mb-3">Publish full-time jobs or internships to connect with ASIET talent.</p>
+                <a href="{% url 'job_create' %}" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">Post Your First Job</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

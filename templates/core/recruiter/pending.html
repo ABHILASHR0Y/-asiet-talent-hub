@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Pending Verification - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center my-5">
+    <div class="col-md-8 col-lg-6 text-center">
+        <div class="card shadow-sm border-0 rounded-4 p-4 p-md-5">
+            <div class="mb-4">
+                {% if company.verification_status == 'rejected' %}
+                    <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center p-4 mb-3" style="width: 90px; height: 90px;">
+                        <i class="fa-solid fa-circle-xmark fs-1 text-danger"></i>
+                    </div>
+                    <h3 class="fw-bold text-danger mb-2">Registration Rejected</h3>
+                    <p class="text-muted">Your company account registration was reviewed and not approved by the ASIET Placement Cell at this time.</p>
+
+                    {% if company.rejection_reason %}
+                        <div class="alert alert-danger text-start small mt-4">
+                            <strong>Reason provided:</strong> {{ company.rejection_reason }}
+                        </div>
+                    {% endif %}
+                {% elif company.verification_status == 'suspended' %}
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center p-4 mb-3" style="width: 90px; height: 90px;">
+                        <i class="fa-solid fa-triangle-exclamation fs-1 text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">Account Suspended</h3>
+                    <p class="text-muted">Your recruiter account is currently suspended by the ASIET Placement Cell.</p>
+                {% else %}
+                    <div class="rounded-circle bg-warning bg-opacity-10 d-inline-flex align-items-center justify-content-center p-4 mb-3" style="width: 90px; height: 90px;">
+                        <i class="fa-solid fa-hourglass-half fs-1 text-warning"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark mb-2">Verification in Progress</h3>
+                    <p class="text-muted lead fs-6 mb-4">
+                        Your company account is currently under verification by the ASIET Placement Cell. You will be able to post opportunities once your account has been approved.
+                    </p>
+                {% endif %}
+            </div>
+
+            <div class="bg-light rounded-3 p-3 text-start mb-4 small">
+                <div class="row">
+                    <div class="col-6 mb-2"><strong>Company:</strong> {{ company.company_name }}</div>
+                    <div class="col-6 mb-2"><strong>HR Contact:</strong> {{ company.hr_name }}</div>
+                    <div class="col-6"><strong>Official Email:</strong> {{ company.official_email }}</div>
+                    <div class="col-6"><strong>Status:</strong> <span class="badge bg-warning text-dark">{{ company.get_verification_status_display }}</span></div>
+                </div>
+            </div>
+
+            <p class="small text-muted mb-4">
+                If you have urgent queries regarding your verification status, please contact the ASIET Placement Office at <a href="mailto:{{ SITE_EMAIL }}" class="text-dark fw-bold">{{ SITE_EMAIL }}</a>.
+            </p>
+
+            <div class="d-flex justify-content-center gap-2">
+                <a href="{% url 'recruiter_company_profile' %}" class="btn btn-outline-dark rounded-pill px-4">
+                    <i class="fa-solid fa-building me-1"></i> Edit Company Info
+                </a>
+                <a href="{% url 'home' %}" class="btn btn-warning rounded-pill px-4 fw-bold">
+                    <i class="fa-solid fa-house me-1"></i> Return Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

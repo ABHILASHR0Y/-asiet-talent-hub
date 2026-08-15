@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}Jobs & Internships - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h3 class="fw-bold mb-1"><i class="fa-solid fa-briefcase text-warning me-2"></i> Campus Opportunities</h3>
+        <p class="text-muted small">Explore active full-time jobs, internships, and placement openings at ASIET Talent Hub.</p>
+    </div>
+</div>
+
+<!-- Search & Filters Bar -->
+<div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4 bg-white">
+    <form method="get" class="row g-3 align-items-center">
+        <div class="col-md-4">
+            {{ form.query }}
+        </div>
+        <div class="col-md-3">
+            {{ form.opportunity_type }}
+        </div>
+        <div class="col-md-3">
+            {{ form.work_mode }}
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold text-dark">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Filter
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Job Openings Grid -->
+{% if job_list %}
+    <div class="row g-4">
+        {% for item in job_list %}
+            {% with job=item.job score=item.match_score %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card border-0 shadow-sm rounded-4 h-100 p-3 hover-lift">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    {% if job.company.logo %}
+                                        <img src="{{ job.company.logo.url }}" alt="{{ job.company.company_name }}" class="rounded-circle border" style="width: 48px; height: 48px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ job.company.company_name|urlencode }}&background=F5C400&color=000';">
+                                    {% else %}
+                                        <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-5" style="width: 48px; height: 48px;">
+                                            {{ job.company.company_name|first }}
+                                        </div>
+                                    {% endif %}
+                                    <div>
+                                        <h6 class="fw-bold mb-0 text-dark">{{ job.company.company_name }}</h6>
+                                        <small class="text-muted"><i class="fa-solid fa-location-dot me-1"></i> {{ job.location }}</small>
+                                    </div>
+                                </div>
+                                {% if score %}
+                                    <span class="badge bg-warning text-dark font-monospace px-2 py-1 rounded-pill">
+                                        {{ score }}% Match
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <h5 class="fw-bold text-dark mb-2">{{ job.title }}</h5>
+
+                            <div class="mb-3">
+                                <span class="badge bg-light text-dark border me-1">{{ job.get_opportunity_type_display }}</span>
+                                <span class="badge bg-light text-dark border me-1">{{ job.get_work_mode_display }}</span>
+                                {% if job.minimum_cgpa %}<span class="badge bg-light text-dark border">Min {{ job.minimum_cgpa }} CGPA</span>{% endif %}
+                            </div>
+
+                            <div class="mb-3">
+                                <small class="fw-semibold text-muted d-block mb-1">REQUIRED SKILLS:</small>
+                                {% for skill in job.get_required_skills_list|slice:":4" %}
+                                    <span class="badge bg-light text-dark border me-1 mb-1">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+
+                            <p class="text-muted small mb-3 mt-auto">
+                                <strong>Stipend/Salary:</strong> {{ job.salary_or_stipend }}<br>
+                                <strong>Deadline:</strong> {{ job.deadline|date:"M d, Y" }}
+                            </p>
+
+                            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                <a href="{% url 'job_save_toggle' job_id=job.id %}" class="btn btn-sm btn-light rounded-circle p-2" title="Save Job">
+                                    <i class="fa-regular fa-bookmark text-dark"></i>
+                                </a>
+                                <a href="{% url 'job_detail' job_id=job.id %}" class="btn btn-sm btn-warning rounded-pill px-4 fw-bold text-dark">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="text-center py-5 bg-white rounded-4 shadow-sm p-4">
+        <i class="fa-solid fa-briefcase fs-1 text-muted mb-3 d-block"></i>
+        <h5>No jobs match your search filters.</h5>
+        <p class="text-muted small">Try clearing or adjusting your search keywords.</p>
+        <a href="{% url 'job_list' %}" class="btn btn-outline-dark rounded-pill px-4">View All Jobs</a>
+    </div>
+{% endif %}
+{% endblock %}

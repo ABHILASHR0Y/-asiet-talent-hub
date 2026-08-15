@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ job.title }} at {{ job.company.company_name }} - {{ SITE_NAME }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-9 col-lg-8">
+        <!-- Job Header -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 mb-4 bg-white">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+                <div class="d-flex align-items-center gap-3">
+                    {% if job.company.logo %}
+                        <img src="{{ job.company.logo.url }}" alt="{{ job.company.company_name }}" class="rounded-circle border" style="width: 70px; height: 70px; object-fit: cover;" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ job.company.company_name|urlencode }}&background=F5C400&color=000';">
+                    {% else %}
+                        <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center fw-bold fs-3" style="width: 70px; height: 70px;">
+                            {{ job.company.company_name|first }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark">{{ job.title }}</h4>
+                        <h6 class="text-muted mb-0 d-flex align-items-center gap-2">
+                            {{ job.company.company_name }}
+                            <span class="badge bg-success text-white small rounded-pill"><i class="fa-solid fa-circle-check"></i> Verified Company</span>
+                        </h6>
+                    </div>
+                </div>
+
+                {% if match_info %}
+                    <div class="text-md-end">
+                        <span class="badge bg-warning text-dark font-monospace fs-5 px-3 py-2 rounded-pill shadow-sm">
+                            <i class="fa-solid fa-bullseye me-1"></i> {{ match_info.match_score }}% Match
+                        </span>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="row g-3 mb-4 p-3 bg-light rounded-4 text-center">
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">TYPE</small>
+                    <strong class="text-dark">{{ job.get_opportunity_type_display }}</strong>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">MODE</small>
+                    <strong class="text-dark">{{ job.get_work_mode_display }}</strong>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">LOCATION</small>
+                    <strong class="text-dark">{{ job.location }}</strong>
+                </div>
+                <div class="col-6 col-md-3">
+                    <small class="text-muted d-block">STIPEND / SALARY</small>
+                    <strong class="text-dark">{{ job.salary_or_stipend }}</strong>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 pt-3 border-top">
+                <div>
+                    <span class="small text-muted"><i class="fa-solid fa-clock me-1"></i> Application Deadline: <strong>{{ job.deadline|date:"F d, Y - h:i A" }}</strong></span>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'job_save_toggle' job_id=job.id %}" class="btn btn-outline-dark rounded-pill px-3">
+                        {% if has_saved %}
+                            <i class="fa-solid fa-bookmark text-warning me-1"></i> Saved
+                        {% else %}
+                            <i class="fa-regular fa-bookmark me-1"></i> Save
+                        {% endif %}
+                    </a>
+
+                    {% if has_applied %}
+                        <button class="btn btn-success rounded-pill px-4 fw-bold" disabled>
+                            <i class="fa-solid fa-circle-check me-1"></i> Applied
+                        </button>
+                    {% elif job.is_expired %}
+                        <button class="btn btn-secondary rounded-pill px-4" disabled>
+                            Expired
+                        </button>
+                    {% elif user_role == 'student' %}
+                        <a href="{% url 'job_apply' job_id=job.id %}" class="btn btn-warning rounded-pill px-5 fw-bold text-dark shadow-sm">
+                            Apply Now
+                        </a>
+                    {% elif not user.is_authenticated %}
+                        <a href="{% url 'login' %}" class="btn btn-warning rounded-pill px-4 fw-bold text-dark">
+                            Log In to Apply
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Match Breakdown for Student -->
+        {% if match_info %}
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-warning"></i> AI Eligibility Checklist
+                </h5>
+                <ul class="list-group list-group-flush">
+                    {% for exp in match_info.explanations %}
+                        <li class="list-group-item bg-transparent px-0 py-2 border-0 small {% if '✓' in exp %}text-success fw-semibold{% elif '✕' in exp %}text-danger{% else %}text-muted{% endif %}">
+                            {{ exp }}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <!-- Job Details Content -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Job Description</h5>
+            <p class="text-dark style-whitespace mb-4">{{ job.description }}</p>
+
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3">Requirements</h5>
+
+            <div class="mb-3">
+                <small class="fw-semibold text-muted d-block mb-1">REQUIRED SKILLS:</small>
+                {% for skill in job.get_required_skills_list %}
+                    <span class="badge bg-light text-dark border fs-6 me-1 mb-1 px-3 py-2 rounded-pill">{{ skill }}</span>
+                {% endfor %}
+            </div>
+
+            {% if job.preferred_skills %}
+                <div class="mb-3">
+                    <small class="fw-semibold text-muted d-block mb-1">PREFERRED SKILLS:</small>
+                    {% for skill in job.get_preferred_skills_list %}
+                        <span class="badge bg-light text-muted border fs-6 me-1 mb-1 px-3 py-2 rounded-pill">{{ skill }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="row g-3 my-3">
+                <div class="col-md-6">
+                    <strong>Eligible Branches:</strong> {{ job.eligible_departments|default:"All Engineering Branches" }}
+                </div>
+                <div class="col-md-6">
+                    <strong>Minimum CGPA:</strong> {{ job.minimum_cgpa|default:"No minimum CGPA criteria" }}
+                </div>
+                <div class="col-md-6">
+                    <strong>Experience Level:</strong> {{ job.experience_required|default:"Freshers" }}
+                </div>
+                <div class="col-md-6">
+                    <strong>Openings:</strong> {{ job.openings }} positions
+                </div>
+            </div>
+
+            {% if job.selection_process %}
+                <h5 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">Selection Process</h5>
+                <p class="text-dark small mb-0">{{ job.selection_process }}</p>
+            {% endif %}
+
+            <h5 class="fw-bold text-dark border-bottom pb-2 mb-3 mt-4">About {{ job.company.company_name }}</h5>
+            <p class="text-muted small mb-2">{{ job.company.description }}</p>
+            {% if job.company.website %}
+                <a href="{{ job.company.website }}" target="_blank" class="small text-dark fw-bold">
+                    <i class="fa-solid fa-globe me-1"></i> Visit {{ job.company.company_name }} Website
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
